@@ -1,0 +1,6 @@
+gradio>=5
+torch
+transformers
+lime
+captum
+numpy

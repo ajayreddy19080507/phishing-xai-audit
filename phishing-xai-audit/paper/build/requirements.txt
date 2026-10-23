@@ -1,0 +1,7 @@
+# Only what is needed to regenerate the figures and the .docx from ../../results
+numpy
+pandas
+scipy
+matplotlib
+python-docx
+lxml

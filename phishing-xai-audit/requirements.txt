@@ -1,0 +1,13 @@
+# Packages for the experiment scripts (Colab T4 used: PyTorch 2.11.0, Transformers 5.18.0, scikit-learn 1.6.1, SHAP 0.52.0)
+torch
+transformers
+accelerate
+datasets
+captum
+lime
+shap==0.52.0
+scikit-learn
+scipy
+numpy
+pandas
+matplotlib

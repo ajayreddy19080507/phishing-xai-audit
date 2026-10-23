@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Phishing XAI Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Project page for the paper Beyond Accuracy: auditing duplicates, baselines and explanation faithfulness in transformer-based phishing email detection.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+/* Layout: one reading column with a wide header; findings as a ruled list, charts and paper figures in a two-up grid.
+   Palette: cool grey paper, ink blue-black, one teal accent for "supported", one amber for "caution". */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --ink:#131a22; --muted:#56616e; --rule:#d5dbe1;
+  --accent:#0a6a73; --accent-ink:#ffffff; --warn:#a85d00; --chip:#e6edf1; --code:#eaeff3;
+  --f-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f151b; --surface:#171f27; --ink:#e7ecf1; --muted:#9aa7b4; --rule:#2b3640;
+    --accent:#4fc3cd; --accent-ink:#06262a; --warn:#e8a54a; --chip:#222d37; --code:#1d2731; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f151b; --surface:#171f27; --ink:#e7ecf1; --muted:#9aa7b4; --rule:#2b3640;
+  --accent:#4fc3cd; --accent-ink:#06262a; --warn:#e8a54a; --chip:#222d37; --code:#1d2731; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:1040px;margin:0 auto}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:3px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font:600 clamp(1.9rem,4.2vw,3rem)/1.12 var(--f-display);letter-spacing:-.01em}
+h2{font:600 1.7rem/1.2 var(--f-display);margin-bottom:14px}
+h3{font:600 1.02rem/1.35 var(--f-body)}
+p{margin:0 0 12px;max-width:68ch}
+.eyebrow{font:500 .75rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+header{padding-block:56px 36px;border-bottom:1px solid var(--rule)}
+.sub{font-size:1.12rem;color:var(--muted);max-width:62ch;margin:18px 0 20px}
+.authors{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 4px;font-weight:500}
+.affil{color:var(--muted);font-size:.9rem;margin:0 0 22px}
+.links{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;min-height:42px;padding:8px 16px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);
+  border-radius:6px;text-decoration:none;font-weight:500;font-size:.95rem}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:hover{border-color:var(--accent)}
+.btn.pending{opacity:.6;cursor:not-allowed;border-style:dashed}
+.btn.pending:hover{border-color:var(--rule)}
+.pend-note{font-size:.85rem;color:var(--muted);margin:10px 0 0;max-width:70ch}
+section{padding-block:44px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.finds{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.finds li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:6px 20px;padding:20px 0;border-top:1px solid var(--rule)}
+.finds li:last-child{border-bottom:1px solid var(--rule)}
+.rq{font:500 .85rem/1.6 var(--f-mono);color:var(--accent)}
+.finds p{margin:6px 0 0}
+.q{color:var(--muted)}
+.num{font-family:var(--f-mono);font-size:.92em;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:18px;min-width:0}
+.panel figcaption,.panel .cap{font-size:.88rem;color:var(--muted);margin-top:12px;max-width:none}
+figure{margin:0}
+.figimg{background:#fff;border-radius:4px;padding:8px;display:flex;justify-content:center}
+.figimg img{display:block;max-width:100%;height:auto;max-height:520px;object-fit:contain}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left}
+th{background:var(--chip);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-size:.88rem}
+svg text{fill:var(--ink);font-family:var(--f-body)}
+svg .mut{fill:var(--muted)}
+svg .grid{stroke:var(--rule)}
+.codebox{position:relative;background:var(--code);border:1px solid var(--rule);border-radius:6px;margin:0 0 14px;max-width:100%}
+.codebox pre{margin:0;padding:14px 16px;overflow-x:auto;font:400 .86rem/1.55 var(--f-mono)}
+.copy{position:absolute;top:8px;right:8px;min-height:30px;padding:2px 10px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:5px;font:500 .78rem var(--f-body);cursor:pointer}
+.codebox pre{padding-right:78px}
+ol.steps{margin:0 0 14px;padding-left:1.3em;max-width:70ch}
+ol.steps li{margin-bottom:6px}
+.limits{margin:0;padding-left:1.2em;max-width:72ch}
+.limits li{margin-bottom:8px}
+.callout{border-left:4px solid var(--warn);padding:8px 0 8px 16px;margin:16px 0;max-width:70ch}
+code{font:400 .88em var(--f-mono);background:var(--code);padding:1px 5px;border-radius:4px}
+footer{padding-top:28px;color:var(--muted);font-size:.88rem}
+footer p{max-width:80ch}
+@media (max-width:560px){
+  .finds li{grid-template-columns:1fr}
+  header{padding-block:36px 28px}
+  section{padding-block:34px}
+}
+@media (prefers-reduced-motion:no-preference){ .btn{transition:border-color .15s} }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">IEEE conference paper &middot; project page</p>
+  <h1>Beyond Accuracy: Auditing Duplicates, Baselines and Explanation Faithfulness in Transformer-Based Phishing Email Detection</h1>
+  <p class="sub">A public phishing-email corpus reports accuracy above 98%. We check what that number rests on: duplicate and placeholder emails, the strength of the baselines, and whether word-level explanations survive a deletion test.</p>
+  <p class="authors"><span>Tellakula Muneiah</span><span>Chandra Akhil</span><span>Nandulamatam Hemitha</span><span>Chagaleti Tejeswar</span></p>
+  <p class="affil">Department of Computer Science and Engineering, RGMCET, Andhra Pradesh, India</p>
+  <div class="links">
+    <a class="btn primary" href="paper.pdf" target="_blank" rel="noopener">Paper (preview PDF)</a>
+    <a class="btn" data-gh="" href="#">Code on GitHub</a>
+    <a class="btn" data-gh="/blob/main/notebooks/01_main_experiments.ipynb" data-colab="" href="#">Open main notebook in Colab</a>
+    <a class="btn" data-gh="/tree/main/app" href="#">Demo app</a>
+  </div>
+  <p class="pend-note" id="pendnote" hidden>The dashed buttons become links once the repository is on GitHub.</p>
+</header>
+
+<section id="findings">
+  <h2>What we found</h2>
+  <p>The paper is an audit, not a new detector. It builds on Uddin et al. (2026) and uses the same corpus (18,631 emails after cleaning) and model family. The findings below are the paper's own; the paper states every limit.</p>
+  <ol class="finds">
+    <li>
+      <span class="rq">RQ1</span>
+      <div>
+        <h3>The benchmark has a ceiling, and a second "independent" dataset is a mirror.</h3>
+        <p>One placeholder text, <span class="num">"empty"</span>, appears 533 times with both labels (335 phishing, 198 safe). Any text-only classifier must get the minority copies wrong, so raw-split accuracy cannot exceed about 98.9%. A second public dataset overlaps the Kaggle corpus by 99.8% in our sample (2,993 of 3,000 emails), so it is not a transfer test.</p>
+      </div>
+    </li>
+    <li>
+      <span class="rq">RQ2</span>
+      <div>
+        <h3>On full text, transformers and TF-IDF linear models are statistically tied.</h3>
+        <p>After de-duplication, accuracy is 98.58% (DistilRoBERTa), 98.84% (RoBERTa-base), 98.65% (SVM) and 98.59% (LR), averaged over three seeds. When the linear models see only the transformers' first 256 tokens, RoBERTa-base leads by up to 0.9 points, and 2 of its 12 paired comparisons stay significant after Holm correction across 24.</p>
+      </div>
+    </li>
+    <li>
+      <span class="rq">RQ3</span>
+      <div>
+        <h3>Which explainer looks best depends on how you configure it.</h3>
+        <p>On RoBERTa-base, Integrated Gradients with the default pad baseline scores like a random word order (comprehensiveness 0.006 against 0.003). With a mask baseline it reaches 0.077, level with LIME (0.073). SHAP's score on DistilRoBERTa rose 2.5-fold when its evaluation budget grew from 300 to 2,000. Re-sampling LIME on fixed emails moved the score at most 1.4-fold, while two full pipeline runs differed up to 4.7-fold; the paper does not separate sample and checkpoint effects.</p>
+      </div>
+    </li>
+    <li>
+      <span class="rq">RQ4</span>
+      <div>
+        <h3>Homoglyphs trigger false alarms in the transformers, and truncation does not explain it.</h3>
+        <p>Replacing 15% of some letters with Cyrillic look-alikes raised DistilRoBERTa's false-positive rate from 2.3% to 7.2% and RoBERTa-base's from 0.8% to 2.0%, while TF-IDF LR moved from 1.2% to 1.4%. A 512-token limit and a short-email subset gave the same pattern. Typos and zero-width characters changed F1 by at most 0.55 points.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section id="accuracy">
+  <h2>The accuracy gap is inside the noise</h2>
+  <p>Mean accuracy on the deduplicated test sets with one standard deviation over seeds 42, 43 and 44 (Table II of the paper). The four non-forest models overlap.</p>
+  <div class="panel">
+    <div class="scroll"><svg id="accsvg" role="img" aria-label="Dot plot of mean accuracy with one standard deviation error bars for five models" viewBox="0 0 760 300" width="100%" style="min-width:560px;display:block"></svg></div>
+    <p class="cap">Random forest (97.02 ± 0.10) is the only model clearly worse. Paired McNemar tests on the same 3,499 emails: RoBERTa-base against LR p = 0.31, against SVM p = 0.52.</p>
+  </div>
+</section>
+
+<section id="figures">
+  <h2>Method and figures from the paper</h2>
+  <div class="two">
+    <figure class="panel"><div class="figimg"><img src="figs/fig1_pipeline.png" alt="Study pipeline diagram" loading="lazy"></div>
+      <figcaption><b>Fig. 1.</b> Study pipeline. The LIME&ndash;IG hybrid is evaluated against its component explainers on the same emails, and controls vary the explainers' settings.</figcaption></figure>
+    <figure class="panel"><div class="figimg"><img src="figs/fig2_curves.png" alt="Comprehensiveness and sufficiency curves against the number of deleted words" loading="lazy"></div>
+      <figcaption><b>Fig. 2.</b> Comprehensiveness (top) and sufficiency (bottom) against the number of top-ranked words k, for DistilRoBERTa (left) and RoBERTa-base (right), averaged over 100 emails.</figcaption></figure>
+    <figure class="panel"><div class="figimg"><img src="figs/fig3_ig_controls.png" alt="Comprehensiveness of LIME, random order and IG variants" loading="lazy"></div>
+      <figcaption><b>Fig. 3.</b> Comprehensiveness of LIME, random order and Integrated Gradients variants on the same 100 emails per model. The baseline choice decides the result for RoBERTa-base.</figcaption></figure>
+    <figure class="panel"><div class="figimg"><img src="figs/fig4_robustness.png" alt="False-positive rate under character perturbations with truncation controls" loading="lazy"></div>
+      <figcaption><b>Fig. 4.</b> False-positive rate under perturbation (single run per model, seed 42), with the homoglyph truncation controls for the transformers.</figcaption></figure>
+  </div>
+  <p class="q" style="margin-top:18px">Faithfulness here means the ERASER deletion test: delete the top-k words an explainer ranks highest and measure how far the model's probability for its original prediction falls. The predicted class is held fixed.</p>
+</section>
+
+<section id="demo">
+  <h2>Try the explanations on an email</h2>
+  <p>The <code>app/</code> folder holds a small Gradio demo. Paste an email and it shows the prediction, word highlights from LIME or Integrated Gradients (both baselines), and a deletion check on the predicted class. Model weights are not in the repository: point the app at a fine-tuned checkpoint you trained with the notebook.</p>
+  <div class="codebox"><pre id="c1">pip install -r app/requirements.txt
+MODEL_DIR=/path/to/model_distilroberta-base python app/app.py</pre><button class="copy" data-copy="c1" type="button">Copy</button></div>
+  <p class="q">The demo was tested end to end on a tiny locally trained model, not yet on the paper's checkpoints.</p>
+</section>
+
+<section id="reproduce">
+  <h2>Reproduce the results</h2>
+  <p>You need a free Colab T4 GPU and the Kaggle file <code>Phishing_Email.csv</code> (dataset <code>subhajournal/phishingemails</code>) in <code>MyDrive/phish_xai</code>. Datasets are not redistributed.</p>
+  <ol class="steps">
+    <li><code>notebooks/01_main_experiments.ipynb</code> trains the models and runs explainers, faithfulness and robustness.</li>
+    <li><code>scripts/controls_colab.py</code> runs paired tests, overlap, length and IG controls, and the SHAP budget test.</li>
+    <li><code>scripts/audit_checks.py</code> runs the duplicate and leakage diagnostics (CPU only).</li>
+    <li><code>notebooks/02_round2_experiments.ipynb</code> runs tuned and matched baselines, near-duplicate splits, LIME repeats and the stratified sample.</li>
+    <li>Rebuild the paper from the saved results with <code>paper/build/build_paper.py</code>. No GPU needed.</li>
+  </ol>
+  <p>All numbers in the paper come from the CSV files in <code>results/</code>.</p>
+</section>
+
+<section id="limits">
+  <h2>Limits</h2>
+  <div class="callout"><p style="margin:0">Differences of a few tenths of a point between models are within seed variation on this corpus. Read the paper's limitations section before quoting any figure.</p></div>
+  <ul class="limits">
+    <li>Three seeds for most results; one seed for the near-duplicate group splits with transformers.</li>
+    <li>Explanation tests use 100 emails per model and a stratified sample of 120, not the whole test set.</li>
+    <li>One public corpus plus a 3,000-email Enron-Spam sample, which is spam rather than phishing and overlaps the corpus (34%).</li>
+    <li>For the raw split, the transformers' errors on the "empty" rows were not checked email by email, so the overall effect of duplicate overlap is left unresolved.</li>
+    <li>The deletion test creates off-distribution inputs, which has its own confound.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Builds on: Uddin et al., "An explainable transformer-based model for phishing email detection", Computer Networks 277, 112061 (2026). Code is MIT licensed; the datasets keep their own licences. This page is a summary: the paper is the reference.</p>
+</footer>
+</div>
+
+<script>
+/* Set this once after uploading the repository. */
+var GH_USER = "YOUR-USERNAME", REPO = "phishing-xai-audit";
+
+(function(){
+  var ready = GH_USER && GH_USER !== "YOUR-USERNAME", any = false;
+  document.querySelectorAll("a[data-gh]").forEach(function(a){
+    var path = a.getAttribute("data-gh");
+    if(ready){
+      var gh = "https://github.com/" + GH_USER + "/" + REPO + path;
+      a.href = a.hasAttribute("data-colab") ? "https://colab.research.google.com/github/" + GH_USER + "/" + REPO + path : gh;
+      a.target = "_blank"; a.rel = "noopener";
+    } else {
+      a.removeAttribute("href"); a.classList.add("pending"); a.setAttribute("aria-disabled","true"); a.title = "Becomes a link after the repository is uploaded"; any = true;
+    }
+  });
+  if(any) document.getElementById("pendnote").hidden = false;
+
+  document.querySelectorAll(".copy").forEach(function(b){
+    b.addEventListener("click", function(){
+      var el = document.getElementById(b.getAttribute("data-copy")), txt = el.textContent;
+      var done = function(){ b.textContent = "Copied"; setTimeout(function(){ b.textContent = "Copy"; }, 1500); };
+      try { navigator.clipboard.writeText(txt).then(done, function(){ sel(el); }); } catch(e){ sel(el); }
+    });
+  });
+  function sel(el){ var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+
+  /* Accuracy dot plot: one x scale for marks, ticks and labels. Values are Table II (dedup, mean and SD over seeds 42-44). */
+  var D = [
+    ["TF-IDF LR", 98.59, 0.20, false], ["TF-IDF SVM", 98.65, 0.16, false], ["TF-IDF RF", 97.02, 0.10, true],
+    ["DistilRoBERTa", 98.58, 0.23, false], ["RoBERTa-base", 98.84, 0.13, false]
+  ];
+  var W = 760, H = 300, L = 150, R = 30, T = 24, B = 48, lo = 96.8, hi = 99.2;
+  var x = function(v){ return L + (v - lo) / (hi - lo) * (W - L - R); };
+  var rowH = (H - T - B) / D.length, s = "";
+  for (var t = 97; t <= 99; t += 0.5) {
+    s += '<line class="grid" x1="' + x(t) + '" x2="' + x(t) + '" y1="' + T + '" y2="' + (H - B) + '"/>' +
+         '<text class="mut" x="' + x(t) + '" y="' + (H - B + 20) + '" text-anchor="middle" font-size="12">' + t.toFixed(1) + '</text>';
+  }
+  s += '<text class="mut" x="' + ((L + W - R) / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12">Accuracy (%)</text>';
+  D.forEach(function(d, i){
+    var y = T + rowH * i + rowH / 2, col = d[3] ? "var(--warn)" : "var(--accent)";
+    s += '<text x="' + (L - 12) + '" y="' + (y + 4) + '" text-anchor="end" font-size="13">' + d[0] + '</text>' +
+         '<line x1="' + x(d[1] - d[2]) + '" x2="' + x(d[1] + d[2]) + '" y1="' + y + '" y2="' + y + '" stroke="' + col + '" stroke-width="3"/>' +
+         '<line x1="' + x(d[1] - d[2]) + '" x2="' + x(d[1] - d[2]) + '" y1="' + (y - 6) + '" y2="' + (y + 6) + '" stroke="' + col + '" stroke-width="2"/>' +
+         '<line x1="' + x(d[1] + d[2]) + '" x2="' + x(d[1] + d[2]) + '" y1="' + (y - 6) + '" y2="' + (y + 6) + '" stroke="' + col + '" stroke-width="2"/>' +
+         '<circle cx="' + x(d[1]) + '" cy="' + y + '" r="6" fill="' + col + '"/>' +
+         '<text x="' + x(d[1]) + '" y="' + (y - 12) + '" text-anchor="middle" font-size="12" style="font-family:var(--f-mono)">' + d[1].toFixed(2) + '</text>';
+  });
+  document.getElementById("accsvg").innerHTML = s;
+})();
+</script>
+
+</body>
+</html>

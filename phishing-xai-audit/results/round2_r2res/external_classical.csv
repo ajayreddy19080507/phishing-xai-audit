@@ -1,0 +1,5 @@
+dataset,model,n,acc_all,n_nonoverlap,acc_nonoverlap
+SetFit/enron_spam,LR,3000,0.9896666666666667,1981,0.9878849066128218
+SetFit/enron_spam,SVM,3000,0.9906666666666667,1981,0.9899040888440181
+zefang-liu/phishing-email-dataset,LR,3000,0.9846666666666667,7,1.0
+zefang-liu/phishing-email-dataset,SVM,3000,0.985,7,1.0

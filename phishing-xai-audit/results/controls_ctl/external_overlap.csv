@@ -1,0 +1,3 @@
+dataset,n,in_kaggle_any,frac_in_kaggle,in_train_seed42,acc_all_distilroberta-base,acc_nonoverlap_distilroberta-base,n_nonoverlap,acc_all_roberta-base,acc_nonoverlap_roberta-base
+SetFit/enron_spam,3000,1019,0.3396666666666667,719,0.987,0.9853609288238263,1981,0.995,0.99444724886421
+zefang-liu/phishing-email-dataset,3000,2993,0.9976666666666667,2066,0.9786666666666667,1.0,7,0.9836666666666667,1.0

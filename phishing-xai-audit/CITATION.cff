@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the paper."
+title: "Beyond Accuracy: Auditing Duplicates, Baselines and Explanation Faithfulness in Transformer-Based Phishing Email Detection"
+type: software
+authors:
+  - family-names: "Muneiah"
+    given-names: "Tellakula"
+  - family-names: "Akhil"
+    given-names: "Chandra"
+  - family-names: "Hemitha"
+    given-names: "Nandulamatam"
+  - family-names: "Tejeswar"
+    given-names: "Chagaleti"

@@ -1,0 +1,159 @@
+{
+ "audit": {
+  "n_raw": 18631,
+  "n_phish": 7309,
+  "n_safe": 11322,
+  "n_rows_in_duplicate_groups": 1640,
+  "n_duplicates_removed": 1140,
+  "n_conflicting_label_groups": 1,
+  "n_dedup": 17491,
+  "n_dedup_phish": 6518,
+  "raw_test_seen_in_train_frac_seed42": 0.06922457740810303
+ },
+ "config": {
+  "seeds": [
+   42,
+   43,
+   44
+  ],
+  "max_len": 256,
+  "epochs": 3,
+  "lr": 2e-05,
+  "bs": 32,
+  "models": [
+   "distilroberta-base",
+   "roberta-base"
+  ],
+  "seeds_for": {
+   "distilroberta-base": [
+    42,
+    43,
+    44
+   ],
+   "roberta-base": [
+    42
+   ]
+  },
+  "n_expl_test": 100,
+  "n_expl_val": 40,
+  "expl_words": 120,
+  "ig_steps": 30,
+  "lime_samples": 500,
+  "shap_evals": 300,
+  "csv_path": "Phishing_Email.csv",
+  "out": "/content/drive/MyDrive/phish_xai/full/results"
+ },
+ "quick": false,
+ "gpu": "Tesla T4",
+ "versions": {
+  "torch": "2.11.0+cu130",
+  "transformers": "5.18.0",
+  "sklearn": "1.6.1",
+  "shap": "0.52.0"
+ },
+ "training_logs": {
+  "raw_42_distilroberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.21284380482352477,
+    "val_f1": 0.9556786703601108
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.06282683902697336,
+    "val_f1": 0.9748470428280082
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.03463860444852696,
+    "val_f1": 0.9790398918187965
+   }
+  ],
+  "raw_42_roberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.1932665312345424,
+    "val_f1": 0.9657064471879286
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.05036583515175487,
+    "val_f1": 0.9748470428280082
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.026368956445418406,
+    "val_f1": 0.9790681971640783
+   }
+  ],
+  "dedup_42_distilroberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.20281086621065791,
+    "val_f1": 0.9427880741337631
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.04944415760456963,
+    "val_f1": 0.9823484267075978
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.022279011172501174,
+    "val_f1": 0.9806949806949807
+   }
+  ],
+  "dedup_42_roberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.18226887519821802,
+    "val_f1": 0.9726775956284153
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.03513852762938353,
+    "val_f1": 0.9877112135176651
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.012469652753577695,
+    "val_f1": 0.9884348496530455
+   }
+  ],
+  "dedup_43_distilroberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.2041536022069251,
+    "val_f1": 0.9726858877086495
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.042983003259051446,
+    "val_f1": 0.977743668457406
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.02010909425422052,
+    "val_f1": 0.9808429118773946
+   }
+  ],
+  "dedup_44_distilroberta-base": [
+   {
+    "epoch": 1,
+    "train_loss": 0.20670652914366155,
+    "val_f1": 0.9755351681957186
+   },
+   {
+    "epoch": 2,
+    "train_loss": 0.041239030152041396,
+    "val_f1": 0.9492063492063492
+   },
+   {
+    "epoch": 3,
+    "train_loss": 0.014245400607739872,
+    "val_f1": 0.9792467332820907
+   }
+  ]
+ },
+ "best_transformer": "roberta-base"
+}
